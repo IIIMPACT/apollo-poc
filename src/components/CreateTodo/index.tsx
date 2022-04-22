@@ -1,9 +1,11 @@
 import { Close, Save } from '@mui/icons-material'
 import { Button } from '@mui/material'
+import { CreateTodoInput } from 'API'
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import { TextField, Form } from 'src/common'
 import { FormButtons } from 'src/common/FormButtons/styles'
+import { useCreateTodoMutation } from 'src/hooks/todos'
 
 interface Values {
   title: string
@@ -12,13 +14,14 @@ interface Values {
 
 const initValues = {
   title: '',
+  complete: false,
   description: '',
 }
 
 const CreateTodo: React.FC = () => {
-  const [values, setValues] = useState<Values>({ ...initValues })
+  const [values, setValues] = useState<CreateTodoInput>({ ...initValues })
   const router = useRouter()
-
+  const { createTodo, data, loading, error } = useCreateTodoMutation()
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target
 
@@ -29,11 +32,12 @@ const CreateTodo: React.FC = () => {
     router.push('/')
   }
 
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (
+    e: React.SyntheticEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault()
 
-    console.log('Submitting Form ...')
-
+    await createTodo({ variables: { input: { ...values } } })
     router.push('/')
   }
 

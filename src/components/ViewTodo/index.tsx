@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { ArrowBackIos, Delete, Edit } from '@mui/icons-material'
 import { Button, Skeleton, Typography } from '@mui/material'
 import * as Styled from './styles'
-import { useViewTodo } from 'src/hooks/todos'
+import { useDeleteTodoMutation, useViewTodo } from 'src/hooks/todos'
 
 const ViewTask: React.FC = () => {
   const {
@@ -12,6 +12,7 @@ const ViewTask: React.FC = () => {
   } = useRouter()
 
   const { data, loading, error } = useViewTodo(id as string)
+  const { deleteTodo } = useDeleteTodoMutation()
 
   const handleBack = (): void => {
     push('/')
@@ -21,9 +22,11 @@ const ViewTask: React.FC = () => {
     push(`/edit/[id]`, `/edit/${data.id}`)
   }
 
-  const handleDelete = (): void => {
-    console.log('deleting ...')
+  const handleDelete = async (): Promise<void> => {
+    console.log(id)
+    console.log(data._version)
 
+    await deleteTodo({ variables: { input: { id, _version: data._version } } })
     push('/')
   }
 

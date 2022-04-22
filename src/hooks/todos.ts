@@ -1,9 +1,14 @@
-import { useQuery, gql } from '@apollo/client'
+import { useMutation, useQuery, gql } from '@apollo/client'
 import {
   getTodo as getTodoQuery,
   listTodos as listTodosQuery,
 } from 'src/graphql/queries'
-import { Todo } from 'API'
+import { Todo, UpdateTodoInput } from 'API'
+import {
+  updateTodo as updateTodoMutation,
+  createTodo as createTodoMutation,
+  deleteTodo as deleteTodoMutation,
+} from 'src/graphql/mutations'
 
 export function useListTodos() {
   const { loading, error, data } = useQuery(
@@ -41,4 +46,52 @@ export function useViewTodo(id: string) {
   }
 
   return { error, loading }
+}
+
+export function useUpdateTodoMutation() {
+  const [updateTodo, { data, loading, error }] = useMutation(
+    gql`
+      ${updateTodoMutation}
+    `,
+    // TODO: this doesn't seem to be working
+    {
+      refetchQueries: [
+        'ListTodos', // Query name
+        'GetTodo', // Query name
+      ],
+    }
+  )
+  console.log('data:', data)
+
+  return { updateTodo, data, loading, error }
+}
+
+export function useCreateTodoMutation() {
+  const [createTodo, { data, loading, error }] = useMutation(
+    gql`
+      ${createTodoMutation}
+    `,
+    {
+      refetchQueries: [
+        'ListTodos', // Query name
+      ],
+    }
+  )
+
+  return { createTodo, data, loading, error }
+}
+
+export function useDeleteTodoMutation() {
+  const [deleteTodo, { data, loading, error }] = useMutation(
+    gql`
+      ${deleteTodoMutation}
+    `,
+    {
+      refetchQueries: [
+        'ListTodos', // Query name
+      ],
+    }
+  )
+
+  return { deleteTodo, data, loading, error }
 }

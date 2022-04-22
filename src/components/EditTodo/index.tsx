@@ -3,14 +3,8 @@ import { useRouter } from 'next/router'
 import { Close, Save } from '@mui/icons-material'
 import { Button, FormControlLabel, Switch } from '@mui/material'
 import { TextField, Form, FormButtons } from 'src/common'
-import { mockData } from 'src/lib'
-
-interface Values {
-  id: string
-  title: string
-  description: string
-  complete: boolean
-}
+import { UpdateTodoInput } from 'API'
+import { useUpdateTodoMutation, useViewTodo } from 'src/hooks/todos'
 
 const initValues = {
   id: '',
@@ -20,19 +14,22 @@ const initValues = {
 }
 
 const EditTodo: React.FC = () => {
-  const [values, setValues] = useState<Values>({ ...initValues })
+  const [values, setValues] = useState<UpdateTodoInput>({ ...initValues })
+
+  const { updateTodo, data, loading, error } = useUpdateTodoMutation()
   const {
     push,
     query: { id },
   } = useRouter()
+  const { data: serverData } = useViewTodo(id as string)
 
   useEffect(() => {
-    const [mockTodo] = mockData.filter((item) => item.id === id)
-
-    if (mockTodo) {
-      setValues({ ...mockTodo })
+    if (serverData) {
+      const { id, _version, complete, description, title }: UpdateTodoInput =
+        serverData
+      setValues({ id, _version, complete, description, title })
     }
-  }, [id])
+  }, [serverData])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target
@@ -50,12 +47,14 @@ const EditTodo: React.FC = () => {
     push('/todo/[id]', `/todo/${id}`)
   }
 
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (
+    e: React.SyntheticEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault()
 
-    console.log('Submitting Form ...')
-
-    push('/')
+    await updateTodo({ variables: { input: { ...values } } })
+    push('/todo/[id]', `/todo/${id}`)
+    // console.log('Submitting Form ...')
   }
 
   return (
