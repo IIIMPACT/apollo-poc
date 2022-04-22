@@ -3,6 +3,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import { CacheProvider, EmotionCache } from '@emotion/react'
 import { createEmotionCache, theme } from 'src/lib'
+import { ApolloWrapper } from 'src/lib/ApolloProvider'
 
 const clientSideEmotionCache = createEmotionCache()
 
@@ -16,12 +17,14 @@ function MyApp({
   emotionCache = clientSideEmotionCache,
 }: MyAppProps) {
   return (
-    <CacheProvider value={emotionCache}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Component {...pageProps} />
-      </ThemeProvider>
-    </CacheProvider>
+    <ApolloWrapper>
+      <CacheProvider value={emotionCache}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Component {...pageProps} />
+        </ThemeProvider>
+      </CacheProvider>
+    </ApolloWrapper>
   )
 }
 
